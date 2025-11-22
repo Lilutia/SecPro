@@ -8,38 +8,38 @@ use Illuminate\Support\Facades\Storage;
 
 class RecipeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    
+    public function index(Request $request)
     {
-        $query = Recipe::query()->with('user');
-
-        if (request('search')) {
-            $searchTerm = request('search');
-            $query->where('title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-        }
-
-        $recipes = $query->latest()->get(); 
-
-        return view('recipes.index', [
-            'recipes' => $recipes
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100'
         ]);
+
+        $searchTerm = $validated['search'] ?? null;
+
+        $query = Recipe::with('user');
+
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%{$searchTerm}%")
+                ->orWhere('description', 'like', "%{$searchTerm}%");
+            });
+        }
+        
+        $recipes = $query->latest()->get();
+
+        return view('recipes.index', compact('recipes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
+    
     public function create()
     {
         abort_unless(auth()->check(), 403, 'Unauthorized');
         return view('recipes.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
         abort_unless(auth()->check(), 403, 'Unauthorized');
@@ -67,9 +67,7 @@ class RecipeController extends Controller
             ->with('success', 'Recipe created successfully!'); 
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Recipe $recipe)
     {
         return view('recipes.show', [
@@ -77,15 +75,12 @@ class RecipeController extends Controller
         ]);
     }
     
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(Recipe $recipe)
     {
         $user = auth()->user();
 
-        // --- UPDATED PERMISSION CHECK ---
-        // Allow if Owner OR User ID 1 OR Admin
+        
         if (!$user || ($user->id !== $recipe->user_id && $user->id !== 1 && strtolower($user->usertype) !== 'admin')) {
             abort(403, 'Unauthorized');
         }
@@ -95,14 +90,12 @@ class RecipeController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, Recipe $recipe)
     {
         $user = auth()->user();
 
-        // --- UPDATED PERMISSION CHECK ---
+        
         if (!$user || ($user->id !== $recipe->user_id && $user->id !== 1 && strtolower($user->usertype) !== 'admin')) {
             abort(403, 'Unauthorized');
         }
@@ -136,15 +129,12 @@ class RecipeController extends Controller
             ->with('success', 'Recipe updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(Recipe $recipe)
     {
         $user = auth()->user();
 
-        // --- UPDATED PERMISSION CHECK ---
-        // Allow if Owner OR User ID 1 OR Admin
+        
         if (!$user || ($user->id !== $recipe->user_id && $user->id !== 1 && strtolower($user->usertype) !== 'admin')) {
             abort(403, 'Unauthorized');
         }
