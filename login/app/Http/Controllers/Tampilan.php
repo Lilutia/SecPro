@@ -25,16 +25,29 @@ class Tampilan extends Controller
     }
 
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $data = $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email',
-        ]);
+    $data = $request->validate([
+        'name'  => 'required|string|max:255',
+        'email' => 'required|email',
+        'image' => 'nullable|image|mimes:png|max:2048',
+    ]);
 
-        $user->update($data);
+    if ($request->hasFile('image')) {
 
-        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
+
+        $path = $request->file('image')->store('profile-images', 'public');
+        $data['image'] = $path;
     }
+
+    $user->update($data);
+
+    return redirect()->route('profile')
+        ->with('success', 'Profile updated successfully!');
+}
+
 }

@@ -16,12 +16,30 @@
         </div>
       @endif
 
-      <form action="{{ route('profile.update') }}" method="POST">
+      <form action="{{ route('profile.update') }}" 
+            method="POST" 
+            enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <div class="profile-pic">
-            <img src="{{ asset('foto/curry.png') }}" alt="Foto Profile">
+            <img id="preview" 
+                 src="{{ $user->image ? asset('storage/' . $user->image) : asset('foto/curry.png') }}" 
+                 alt="Foto Profile">
+
+            {{-- TOMBOL CHANGE: buka file picker --}}
+            <button type="button" class="change-btn"
+                    onclick="document.getElementById('imageInput').click()">
+                Change
+            </button>
+
+            {{-- INPUT FILE DISSEMBUNYIKAN --}}
+            <input type="file"
+                   id="imageInput"
+                   name="image"
+                   accept="image/*"
+                   style="display:none"
+                   onchange="previewImage(event)">
         </div>
 
         <label for="name" style="display:block; text-align:left; margin-left: 10%; font-weight:bold;">
@@ -57,5 +75,15 @@
       </form>
     </div>
   </div>
+
+  <script>
+    function previewImage(event) {
+        const img = document.getElementById('preview');
+        const file = event.target.files[0];
+        if (file) {
+            img.src = URL.createObjectURL(file);
+        }
+    }
+  </script>
 </body>
 </html>

@@ -51,8 +51,10 @@
   </div>
 
   <div class="profile-pic">
-    <img src="{{ asset('foto/curry.png') }}" alt="Foto Profile">
+    <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('foto/curry.png') }}" 
+         alt="Foto Profile">
   </div>
+
 
   <div class="profile-info">
     <h1>{{ $user->name }}</h1>
