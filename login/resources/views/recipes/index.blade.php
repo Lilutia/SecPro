@@ -1,141 +1,48 @@
+@php
+    use Illuminate\Support\Str;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Dapur Rasa - Home</title>
+
+    {{-- CSS global yang dipakai mainpage --}}
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/main_page.css') }}">
+
+    {{-- Font tambahan kamu --}}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
     <style>
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0; 
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
             padding: 0;
             background: linear-gradient(180deg, #fff8f0 0%, #ffe3d0 100%);
             min-height: 100vh;
         }
 
-        header {
-            background-color: #fffdf9;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-            padding: 15px 40px;
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-        }
-
-        .logo img {
-            height: 50px;
-            object-fit: contain;
-            display: block;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            font-size: 1rem;
-            position: relative;
-            padding: 5px 0;
-        }
-
-        .nav-links a:hover, 
-        .nav-links a.active {
-            color: #6b8e23;
-            font-weight: 600;
-        }
-        
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #6b8e23;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .search-form { 
-            display: flex; 
-            align-items: center;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 50px;
-            padding: 5px 20px;
-            width: 250px;
-            height: 35px;
-        }
-
-        .search-form input { 
-            border: none;
-            background: transparent;
-            font-size: 0.9rem; 
-            font-family: 'Poppins', sans-serif;
-            outline: none;
-            flex-grow: 1;
-            color: #555;
-        }
-
-        .search-form button { 
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-form button img {
-            width: 18px;
-            height: 18px;
-            opacity: 0.7;
-        }
-
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
+        /* Grid & card styling (punyamu) */
         .recipe-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 30px;
-            padding: 0 40px 40px 40px;
+            padding: 40px;
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 0 auto 40px auto;
         }
 
-        .recipe-card { 
-            background-color: #faebd7;
+        .recipe-card {
             background: linear-gradient(to right, #fffbf5, #faebd7);
-            padding: 20px; 
+            padding: 20px;
             border-radius: 25px;
-            display: flex; 
-            align-items: center; 
+            display: flex;
+            align-items: center;
             gap: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
-            
-            /* IMPORTANT: This allows us to position the buttons absolutely inside the card */
-            position: relative; 
+            position: relative;
         }
 
         .recipe-card:hover {
@@ -144,21 +51,10 @@
             cursor: pointer;
         }
 
-        .card-link::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 25px;
-            z-index: 1; 
-        }
-
-        .recipe-card img.recipe-img { 
-            width: 130px; 
-            height: 130px; 
-            object-fit: cover; 
+        .recipe-card img.recipe-img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
             border-radius: 50%;
             border: 4px solid white;
             flex-shrink: 0;
@@ -172,9 +68,9 @@
             letter-spacing: 0.5px;
         }
 
-        .card-content h2 a { 
-            text-decoration: none; 
-            color: #333; 
+        .card-content h2 a {
+            text-decoration: none;
+            color: #333;
             font-weight: 700;
         }
 
@@ -187,18 +83,16 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            /* Make sure text doesn't overlap with buttons on the right */
-            padding-right: 40px; 
+            padding-right: 40px;
         }
 
-        /* --- NEW ACTION BUTTONS STYLING --- */
         .action-buttons {
             position: absolute;
             top: 15px;
             right: 15px;
             display: flex;
             gap: 8px;
-            z-index: 10; /* Ensure it sits on top of the card link */
+            z-index: 10;
         }
 
         .btn-circle {
@@ -222,49 +116,43 @@
             background: #fffdf9;
         }
 
-        .btn-edit { color: #f39c12; }   /* Orange Pencil */
-        .btn-trash { color: #e74c3c; }  /* Red Trash */
-        /* --------------------------------- */
+        .btn-edit { color: #f39c12; }
+        .btn-trash { color: #e74c3c; }
 
         @media (max-width: 900px) {
-            header { flex-direction: column; gap: 20px; }
-            .header-left { flex-direction: column; gap: 15px; }
-            .recipe-grid { grid-template-columns: 1fr; }
+            .recipe-grid { grid-template-columns: 1fr; padding: 20px; }
         }
     </style>
 </head>
-<body>
+<body class="index-body">
 
-    <header>
-        <div class="header-left">
-            <div class="logo">
-                <a href="{{ route('recipes.index') }}">
-                    <img src="{{ asset('foto/logokecil.png') }}" alt="Dapur Rasa Logo">
-                </a>
-            </div>
-            <nav class="nav-links">
-                <a href="#">Home</a>
-                <a href="#">About</a>
-                <a href="#">Contact</a>
-            </nav>
-        </div>
-
-        <div class="header-right">
-            <form action="{{ route('recipes.index') }}" method="GET" class="search-form">
-                <input type="text" name="search" placeholder="Cari Resep..." value="{{ request('search') }}">
-                <button type="submit">
-                    <img src="{{ asset('foto/search.png') }}" alt="Search">
-                </button>
-            </form>
-            <div class="profile-icon">
-                <img src="{{ asset('foto/logoprofile.png') }}" alt="Profile">
-            </div>
+    {{-- HEADER SAMA PERSIS DENGAN MAINPAGE --}}
+    <header class="navbar">
+        <img src="{{ asset('foto/logokecil.png') }}" alt="Logo Dapur Rasa" class="logo">
+        <div class="right-side">
+            @include('partials.search-bar')
+            <button class="profile-btn" onclick="window.location.href='{{ route('profile') }}'">
+                <img src="{{ asset('foto/logoprofile.png') }}" alt="Profile Icon">
+            </button>
         </div>
     </header>
 
+    <div class="secondary-nav-bar">
+        <nav class="main-nav">
+            <ul>
+                <li><a href="{{ route('mainpage') }}" class="active">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    {{-- LIST RESEP PAKAI DESAIN BARU --}}
     <div class="recipe-grid">
         @if ($recipes->isEmpty())
-            <p style="grid-column: 1/-1; text-align: center; color: #666;">No recipes found matching your search.</p>
+            <p style="grid-column: 1/-1; text-align: center; color: #666;">
+                No recipes found matching your search.
+            </p>
         @else
             @foreach ($recipes as $recipe)
                 <div class="recipe-card">
@@ -273,7 +161,7 @@
                     @else
                         <img src="https://via.placeholder.com/150" alt="No Image" class="recipe-img">
                     @endif
-                    
+
                     <div class="card-content">
                         <h2>
                             <a href="{{ route('recipes.show', $recipe->id) }}" class="card-link">
@@ -298,7 +186,7 @@
                             </form>
                         </div>
                     @endif
-                    </div>
+                </div>
             @endforeach
         @endif
     </div>
